@@ -1,23 +1,24 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { OperatorsModel } from "src/operators/operators.model";
+import { StateModel } from "src/state/state.model";
+import { ValueModel } from "src/value/value.model";
 import { Repository } from "typeorm";
 import { CreateNewFilterDTO } from "./dto/createNewFilter";
 import { NewFilter } from "./dto/NewFilter";
 import { FilterParameters } from "./dto/params";
 import { DATOS, OPERADORES, STATUS } from "./entities/constants/initDB";
 import { CreatedFiltersEntity } from "./entities/createdFilters";
-import { OperatorsEntity } from "./entities/operatorsData";
-import { StateDataEntity } from "./entities/stateData";
-import { ValueDataEntity } from "./entities/valueData";
 
 @Injectable()
 export class HeavyFiltersModel {
     private logger:Logger;
-    constructor(
+    constructor( private readonly operatorsModel: OperatorsModel,
+                 private readonly stateModel: StateModel,
+                 private readonly valueModel: ValueModel,
+
     @InjectRepository(CreatedFiltersEntity) private createdFiltersRepository: Repository<CreatedFiltersEntity>,
-    @InjectRepository(OperatorsEntity) private operatorsRepository: Repository<OperatorsEntity>,
-    @InjectRepository(StateDataEntity) private stateDataRepository: Repository<StateDataEntity>,
-    @InjectRepository(ValueDataEntity) private valueDataRepository: Repository<ValueDataEntity>
+    
     ){
         this.logger = new Logger(HeavyFiltersModel.name);
     }
@@ -45,9 +46,9 @@ export class HeavyFiltersModel {
 
     async getAllParams(): Promise<FilterParameters> {
 
-        const state = await this.stateDataRepository.find()
-        const value = await this.valueDataRepository.find();
-        const operators = await this.operatorsRepository.find();
+        const state = await this.stateModel.getAllStates();
+        const value = await this.valueModel.getAllValues();
+        const operators = await this.operatorsModel.getOperators();
 
         const params: FilterParameters = {
             state: state,
@@ -61,43 +62,31 @@ export class HeavyFiltersModel {
 
     async initializeDB() {
         
-        // const isEmpty = 2;
-        // const condition = await this.stateDataRepository.find()
+        const isEmpty = 2;
+        const condition = await this.stateModel.getAllStates()
 
-        // if(condition.length < isEmpty) {
+        if(condition.length < isEmpty) {
 
             STATUS.forEach(( element, index, array ) => {
-                const stateData: StateDataEntity = new StateDataEntity()
-                stateData.state = element
-                
-                const stateDataOjb = this.stateDataRepository.create()
-                const createdStateData = this.stateDataRepository.save(stateDataOjb)
+                this.stateModel.createState(element)
+
             });
             
             OPERADORES.forEach(( element, index, array ) => {
-                const operadores: OperatorsEntity = new OperatorsEntity()
-                operadores.operator = element
-                
-                const operatorsOjb = this.operatorsRepository.create()
-                const createdOperators = this.stateDataRepository.save(operatorsOjb)
+                this.operatorsModel.createOperators(element)
             });
             
             DATOS.forEach(( element, index, array ) => {
-                const valueData: ValueDataEntity = new ValueDataEntity()
-                valueData.state = element.state;
-                valueData.value = element.value;
-                
-                const stateDataOjb = this.valueDataRepository.create()
-                const createdStateData = this.valueDataRepository.save(stateDataOjb)
+                this.valueModel.createValue(element);
             });
 
             this.logger.log("Created DB with default values")
             return
         }
-        // else {
-        //     this.logger.log("DB actually populated. It has not been modified")
-        // }
+        else {
+            this.logger.log("DB actually populated. It has not been modified")
+        }
             
-            // return
+            return
     }
-// }
+}

@@ -4,6 +4,9 @@ import { ConfigService, ConfigModule } from "@nestjs/config";
 import configuration from "src/configuration/configuration";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HeavyFiltersModule } from "./heavyFilters/heavyFilters.module";
+import { ValueModule } from "./value/value.module";
+import { StateModule } from "./state/state.module";
+import { OperatorsModule } from "./operators/operators.module";
 
 @Module({
   imports: [
@@ -25,7 +28,7 @@ import { HeavyFiltersModule } from "./heavyFilters/heavyFilters.module";
           synchronize: true
         })
     }),
-    HeavyFiltersModule],
+    HeavyFiltersModule, ValueModule, StateModule, OperatorsModule],
 controllers: [],
 providers: []
 })

@@ -5,14 +5,13 @@ import { HeavyFiltersModel } from "./heavyFilters.model"
 import { HttpModule } from "@nestjs/axios"
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CreatedFiltersEntity } from "./entities/createdFilters";
-import { OperatorsEntity } from "./entities/operatorsData";
-import { StateDataEntity } from "./entities/stateData";
-import { ValueDataEntity } from "./entities/valueData";
-const Entities = [CreatedFiltersEntity, OperatorsEntity, StateDataEntity, ValueDataEntity]
+import { OperatorsModule } from "src/operators/operators.module";
+import { ValueModule } from "../value/value.module"
+import { StateModule } from "src/state/state.module";
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature(Entities),
+    imports: [OperatorsModule, StateModule, ValueModule,
+        TypeOrmModule.forFeature([CreatedFiltersEntity]),
         HttpModule],
     controllers: [HeavyFiltersController],
     providers: [HeavyFiltersService, HeavyFiltersModel]

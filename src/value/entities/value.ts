@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-Entity({name: "ValueData"})
-export class ValueDataEntity {
+Entity({name: "Value"})
+export class Value {
 
     @PrimaryGeneratedColumn()
     public id: number;
